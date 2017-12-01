@@ -5,7 +5,7 @@
     docker run -d \
       --name=test1 \
       --hostname=test1 \
-      -p 26267:26257 -p 8888:8080  \
+      -p 26257:26257 -p 8888:8080  \
       -v test1-data:/cockroach/cockroach-data  \
       cockroachdb/cockroach:v1.1.3 start --insecure
     
@@ -18,11 +18,11 @@
     
     # create tables
     docker exec -it test1 ./cockroach sql --insecure -e 'CREATE TABLE test1.sometable1 (id UUID PRIMARY KEY, name TEXT)'
-    docker exec -it test1 ./cockroach sql --insecure -e 'CREATE TABLE IF NOT EXISTS test1.sometable2 ( id UUID PRIMARY KEY, dnsServers TEXT [] NULL, sometable1_id UUID NULL REFERENCES test1.sometable1 (id) )'
+    docker exec -it test1 ./cockroach sql --insecure -e 'CREATE TABLE IF NOT EXISTS test1.sometable2 ( id UUID PRIMARY KEY, somearray TEXT [] NULL, sometable1_id UUID NULL REFERENCES test1.sometable1 (id) )'
     
     # insert test data
     docker exec -it test1 ./cockroach sql --insecure -e "INSERT INTO test1.sometable1 (id, name) VALUES ('00000000-0000-0000-0000-000000000000', 'somename')"
-    docker exec -it test1 ./cockroach sql --insecure -e "INSERT INTO test1.sometable2 (id, dnsServers, sometable1_id ) VALUES ( '00000000-0000-0000-0000-000000000000', ARRAY['server1.com', 'server2.com'], '00000000-0000-0000-0000-000000000000' )"
+    docker exec -it test1 ./cockroach sql --insecure -e "INSERT INTO test1.sometable2 (id, somearray, sometable1_id ) VALUES ( '00000000-0000-0000-0000-000000000000', ARRAY['server1.com', 'server2.com'], '00000000-0000-0000-0000-000000000000' )"
     ```
 1. Run `crdboom.Main`
 1. Observe OOM, example:
@@ -37,7 +37,7 @@
     
 # What's going on?
 
-* For some reason, after *exactly* 5 iterations for some reason `org.postgresql.core.Field.setFormat()` is invoked with value `1` (which is binary mode) for column `dnsServers`
+* For some reason, after *exactly* 5 iterations for some reason `org.postgresql.core.Field.setFormat()` is invoked with value `1` (which is binary mode) for column `somearray`
 * The next time `ResultSet.getArray()` is invoked, during `PgArray.readBinaryArray` execution the array dimensions are read with `int dimensions = ByteConverter.int4(fieldBytes, 0);`, but since the mode was changed to binary, the value returned here seems obviously wrong, it is a huge number which is used to initialize an `int[]` array which causes the `OutOfMemoryError` to occur
 
 # Why this weird project setup?

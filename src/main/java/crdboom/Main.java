@@ -36,8 +36,8 @@ public class Main {
 
         while (res.next()) {
           final UUID id = res.getObject("id", UUID.class);
-          final Array dnsServers = res.getArray("dnsServers");
-          System.out.println("st2.id=" + id + ", array=" + dnsServers);
+          final Array someArray = res.getArray("somearray");
+          System.out.println("st2.id=" + id + ", array=" + someArray);
         }
       }
 
@@ -48,7 +48,7 @@ public class Main {
 
   private static DataSource dataSource() {
 
-    final String jdbcUrl = "jdbc:postgresql://127.0.0.1:26267/test1?sslmode=disable";
+    final String jdbcUrl = "jdbc:postgresql://127.0.0.1:26257/test1?sslmode=disable";
 
     HikariConfig poolConfig = new HikariConfig();
     poolConfig.setPoolName("rdbms-pool");
