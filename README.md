@@ -1,3 +1,7 @@
+# UPDATE
+
+This repo was used to help reproduce & fix https://github.com/cockroachdb/cockroach/issues/20372
+
 # CockroachDB JDBC OutOfMemoryError on PgArray
 
 1. Setup a testing CRDB Docker container + test data
